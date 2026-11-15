@@ -3,6 +3,7 @@ package com.bank.bankingsystem.controller;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.http.ResponseEntity;
 import com.bank.bankingsystem.entity.Account;
 import com.bank.bankingsystem.service.AccountService;
 import org.springframework.web.bind.annotation.*;
@@ -35,5 +36,16 @@ public class AccountController {
             @RequestBody Account updatedAccount) {
 
         return accountService.updateAccount(id, updatedAccount);
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteAccount(@PathVariable Long id) {
+
+        boolean deleted = accountService.deleteAccount(id);
+
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.notFound().build();
     }
 }

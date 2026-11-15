@@ -43,4 +43,15 @@ public class AccountService {
 
         return Optional.empty();
     }
+    public boolean deleteAccount(Long id) {
+
+        if (accountRepository.existsById(id)) {
+
+            accountRepository.deleteById(id);
+
+            return true;
+        }
+
+        return false;
+    }
 }

@@ -10,6 +10,9 @@ import com.bank.bankingsystem.entity.Account;
 import com.bank.bankingsystem.repository.AccountRepository;
 
 import org.springframework.stereotype.Service;
+import com.bank.bankingsystem.exception.ResourceNotFoundException;
+
+import com.bank.bankingsystem.exception.AccountAlreadyExistsException;
 
 @Service
 public class AccountService {
@@ -21,7 +24,13 @@ public class AccountService {
     }
 
     public AccountResponseDTO createAccount(Account account) {
+
+        if (accountRepository.existsByAccountNumber(account.getAccountNumber())) {
+            throw new AccountAlreadyExistsException("Account number already exists");
+        }
+
         Account savedAccount = accountRepository.save(account);
+
         return AccountMapper.toDTO(savedAccount);
     }
 
@@ -32,36 +41,41 @@ public class AccountService {
                 .toList();
     }
 
-    public Optional<AccountResponseDTO> getAccountById(Long id) {
-        return accountRepository.findById(id)
-                .map(AccountMapper::toDTO);
+    public AccountResponseDTO getAccountById(Long id) {
+
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Account not found with ID: " + id
+                ));
+
+        return AccountMapper.toDTO(account);
     }
 
-    public Optional<AccountResponseDTO> updateAccount(Long id, Account updatedAccount) {
 
-        Optional<Account> existingAccount = accountRepository.findById(id);
+    public AccountResponseDTO updateAccount(Long id, Account updatedAccount) {
 
-        if (existingAccount.isPresent()) {
-            Account account = existingAccount.get();
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Account not found with ID: " + id
+                ));
 
-            account.setAccountHolderName(updatedAccount.getAccountHolderName());
-            account.setAccountNumber(updatedAccount.getAccountNumber());
-            account.setBalance(updatedAccount.getBalance());
+        account.setAccountHolderName(updatedAccount.getAccountHolderName());
+        account.setAccountNumber(updatedAccount.getAccountNumber());
+        account.setBalance(updatedAccount.getBalance());
 
-            Account savedAccount = accountRepository.save(account);
+        Account savedAccount = accountRepository.save(account);
 
-            return Optional.of(AccountMapper.toDTO(savedAccount));
-        }
-
-        return Optional.empty();
+        return AccountMapper.toDTO(savedAccount);
     }
 
-    public boolean deleteAccount(Long id) {
-        if (accountRepository.existsById(id)) {
-            accountRepository.deleteById(id);
-            return true;
-        }
 
-        return false;
+    public void deleteAccount(Long id) {
+
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Account not found with ID: " + id
+                ));
+
+        accountRepository.delete(account);
     }
 }

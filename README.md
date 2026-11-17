@@ -144,3 +144,26 @@ http://localhost:8080/swagger-ui/index.html
 ### Swagger UI – Account Management APIs
 
 ![Swagger UI](screenshots/swagger-ui.png)
+
+
+## Transaction Management
+
+The application supports the following banking operations:
+
+- Deposit money into an account.
+- Withdraw money with insufficient-balance protection.
+- Transfer money between two accounts.
+- View account-wise transaction history.
+- Prevent transfers between the same account.
+- Maintain transaction records for deposits, withdrawals and transfers.
+- Use database transactions to ensure atomicity.
+- Apply pessimistic write locking to protect concurrent account updates.
+
+### Transaction API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/transactions/deposit` | Deposit money |
+| POST | `/api/transactions/withdraw` | Withdraw money |
+| POST | `/api/transactions/transfer` | Transfer money |
+| GET | `/api/transactions/account/{accountId}` | View transaction history |
